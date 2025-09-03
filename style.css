@@ -24,8 +24,11 @@ h1{
 
 #inputArea{
     display: flex;
-    gap: 10px;
+    display: inline;
     justify-content: center;
+    align-items: center;
+    gap: 10px;
+    
 
 }
 
@@ -41,11 +44,9 @@ h1{
 
 button{
     width: 20%;
+    height: 30px;
     background-color: coral;
     border-radius: 12px;
     border: 3px solid white;
 }
 
-#tasklist{
-    
-}
