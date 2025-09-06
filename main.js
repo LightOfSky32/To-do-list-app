@@ -4,12 +4,15 @@ console.log(dateTime);
 
 
 const textInput = document.getElementById("input");
-const button = document.getElementById("addbtn");
+const addButton = document.getElementById("addbtn");
+const overviewButton = document.getElementById("overview-btn");
+const completeButton = document.getElementById("completed-btn");
+const uncompleteButton = document.getElementById("undone-btn")
 
 const list = document.getElementById("taskList");
 let tasks = [];
 
-//edit, refactoring (making code into a function) because i'm lazy and don't want to rewrite code lines, moving function in event listener here
+//edit, refactoring (making code into a function) because i'm lazy and don't want to rewrite code lines, moving function from event listener here
 
 function displayTask(taskText){
     const newTask = document.createElement("div");
@@ -23,6 +26,7 @@ function displayTask(taskText){
     newTask.addEventListener("click", (event) => {
         if (event.target !== removeButton && event.target !== editButton) {
             newTask.classList.toggle("done");
+            updateTaskCounter();
         }
     });
 
@@ -41,8 +45,7 @@ function displayTask(taskText){
 
         editInput.addEventListener("blur", () => {
             const newTaskText = editInput.value.trim();
-            const originalText = taskContent.textContent.trim();
-            const taskIndex = tasks.indexOf(originalText);
+            const taskIndex = tasks.indexOf(originalSpanText);
 
             if (taskIndex > -1) {
                 tasks[taskIndex] = newTaskText;
@@ -71,6 +74,7 @@ function displayTask(taskText){
         if (taskIndex > -1) {
             tasks.splice(taskIndex, 1);
             save();
+            updateTaskCounter();
         }
         newTask.remove();
         event.stopPropagation();
@@ -84,6 +88,48 @@ function displayTask(taskText){
 }
 
 
+function filterTasks(filterType){
+
+    const items = document.querySelectorAll(".todo-item")
+    for (const item of items){
+        let displayItems = false
+
+        if (filterType === "all"){
+            displayItems = true
+        } else if (filterType === "done" && item.classList.contains("done")){
+             displayItems = true
+        } else if (filterType ==="undone" && !(item.classList.contains("done"))){
+             displayItems = true
+        }
+
+        if (displayItems) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    }
+
+}
+
+    
+function updateTaskCounter() {
+    const counterElement = document.getElementById("task-counter");
+
+    let completedTasks = 0;
+    let incompleteTasks = 0;
+    const items = document.querySelectorAll(".todo-item");
+
+        for (const item of items) {
+        if (item.classList.contains("done")) {
+            completedTasks++;
+        } else {
+            incompleteTasks++;
+        }
+    }
+    counterElement.textContent = `You have ${tasks.length} tasks: ${incompleteTasks} incomplete and ${completedTasks} completed.`;
+
+}
+
 
 const loadItem = () => {
     const savedTasks = localStorage.getItem("todo")
@@ -94,6 +140,7 @@ const loadItem = () => {
        for (const ele of tasks) {
         displayTask(ele);
        }
+       updateTaskCounter()
     }
 
 
@@ -104,7 +151,7 @@ function save(){
 }
 
 
-button.addEventListener("click", () => {
+addButton.addEventListener("click", () => {
 
      const userInput = textInput.value.trim();
      const message = document.getElementById("message");
@@ -115,6 +162,7 @@ button.addEventListener("click", () => {
     
     if (userInput === "") {
         message.textContent = "please input text";
+        message.classList.add("warning");
         setTimeout(() =>{
             message.textContent ="";
         }, 2000)
@@ -126,10 +174,25 @@ button.addEventListener("click", () => {
     tasks.push(combinedString);
     displayTask(combinedString);
     save();
+    updateTaskCounter()
     textInput.value = "";
     
 
 });
+
+    overviewButton.addEventListener("click", () => { 
+        filterTasks("all"); 
+    })
+
+    uncompleteButton.addEventListener("click", () => { 
+        filterTasks("undone"); 
+    })
+
+    completeButton.addEventListener("click", () => { 
+        filterTasks("done"); 
+    })
+
+
 
 
 loadItem();

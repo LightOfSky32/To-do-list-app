@@ -9,14 +9,43 @@
     <body>
         <div id="mainContainer">
             <h1>Todo list</h1>
+            <p id="task-counter"></p>
             <div id="inputArea">
                 <input type="text" id="input" placeholder="enter task">
                 <button id="addbtn">Add</button>
                 <p id="message"></p>
             </div>
+            <button id="overview-btn">Overview</button>
+            <button id="completed-btn">Completed</button>
+            <button id="undone-btn">Uncompleted</button>
                <ul id="taskList">
-            </ul>
+               </ul>
         </div>
+
+        <dialog id="edit-dialog">
+             <h2>Edit Task</h2>
+             <div>
+                <label for="edit-title">Title:</label>
+                <input type="text" id="edit-title-input">
+            </div>
+             <div>
+                <label for="edit-date">Date:</label>
+                <input type="date" id="edit-date-input">
+           </div>
+             <div>
+                <label for="edit-time">Time:</label>
+                <input type="time" id="edit-time-input">
+            </div>
+             <div>
+                <label for="edit-task">Task:</label>
+                <textarea id="edit-textarea"></textarea>
+           </div>
+           <button id="save-edit-btn">Save</button>
+           <button id="cancel-edit-btn">Cancel</button>
+
+        </dialog>
         <script src="main.js"></script>
     </body>
 </html>
+
+

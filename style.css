@@ -43,8 +43,7 @@ h1{
 }
 
 button{
-    width: 50px;
-    height: 30px;
+    padding: 5px 10px ;
     background-color: coral;
     border-radius: 12px;
     border: 3px solid white;
@@ -56,4 +55,12 @@ button{
     text-decoration: line-through;
     color: cornflowerblue;
     border-color: cornsilk;
+}
+
+.warning {
+    color: red;
+}
+
+.todo-item{
+    padding: 10px;
 }
