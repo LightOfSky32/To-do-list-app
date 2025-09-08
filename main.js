@@ -7,7 +7,15 @@ const textInput = document.getElementById("input");
 const addButton = document.getElementById("addbtn");
 const overviewButton = document.getElementById("overview-btn");
 const completeButton = document.getElementById("completed-btn");
-const uncompleteButton = document.getElementById("undone-btn")
+const uncompleteButton = document.getElementById("undone-btn");
+const editDialog = document.getElementById("edit-dialog");
+const editTitleInput = document.getElementById("edit-title-input");
+const editDateInput = document.getElementById("edit-date-input");
+const editTimeInput = document.getElementById("edit-time-input");
+const editTextArea = document.getElementById("edit-textarea");
+const saveEditBtn = document.getElementById("save-edit-btn");
+const cancelEditBtn = document.getElementById("cancel-edit-btn");
+
 
 const list = document.getElementById("taskList");
 let tasks = [];
