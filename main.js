@@ -1,9 +1,3 @@
-const today = new Date();
-const dateTime = today.toLocaleDateString()
-console.log(dateTime);
-
-
-const textInput = document.getElementById("input");
 const addButton = document.getElementById("addbtn");
 const overviewButton = document.getElementById("overview-btn");
 const completeButton = document.getElementById("completed-btn");
@@ -15,77 +9,77 @@ const editTimeInput = document.getElementById("edit-time-input");
 const editTextArea = document.getElementById("edit-textarea");
 const saveEditBtn = document.getElementById("save-edit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit-btn");
-
+const searchBar = document.getElementById("search");
+const clearBtn = document.getElementById("clear-btn");
+const messageWarn = document.getElementById("message");
 
 const list = document.getElementById("taskList");
 let tasks = [];
+let editingTaskId = null;
 
 //edit, refactoring (making code into a function) because i'm lazy and don't want to rewrite code lines, moving function from event listener here
 
-function displayTask(taskText){
+function displayTask(taskObject){
     const newTask = document.createElement("div");
     newTask.classList.add("todo-item");
+    newTask.dataset.id = taskObject.id;
+
+     if (taskObject.isCompleted) {
+        newTask.classList.add("done");
+    }
 
     const taskContent = document.createElement("span");
-    taskContent.textContent = taskText;
+    taskContent.textContent = `${taskObject.title ? taskObject.title + ' - ' : ''}Date: ${taskObject.date} Time: ${taskObject.time} Task: ${taskObject.text}`;
 
     newTask.appendChild(taskContent);
-
-    newTask.addEventListener("click", (event) => {
-        if (event.target !== removeButton && event.target !== editButton) {
-            newTask.classList.toggle("done");
-            updateTaskCounter();
-        }
-    });
 
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
     editButton.classList.add("edit-btn");
-    editButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-
-        const editInput = document.createElement("textarea");
-        editInput.value = taskContent.textContent;
-
-        const originalSpanText = taskContent.textContent;
-        taskContent.replaceWith(editInput);
-        editInput.focus();
-
-        editInput.addEventListener("blur", () => {
-            const newTaskText = editInput.value.trim();
-            const taskIndex = tasks.indexOf(originalSpanText);
-
-            if (taskIndex > -1) {
-                tasks[taskIndex] = newTaskText;
-                save();
-            }
-
-            taskContent.textContent = newTaskText;
-            editInput.replaceWith(taskContent);
-        });
-
-        editInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                editInput.blur();
-            }
-        });
-    });
 
     const removeButton = document.createElement("button");
     removeButton.textContent = "delete task";
-     removeButton.classList.add("delete-btn");
+    removeButton.classList.add("delete-btn");
+
+
+    newTask.addEventListener("click", (event) => {
+        if (event.target !== removeButton && event.target !== editButton) {
+            newTask.classList.toggle("done");
+            taskObject.isCompleted = !taskObject.isCompleted
+            updateTaskCounter();
+            save()
+        }
+    });
+
+    editButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        const taskId = event.currentTarget.parentNode.dataset.id;
+        const taskObject = tasks.find(task => task.id == taskId);
+
+        editingTaskId = taskId;
+        
+        editTitleInput.value = taskObject.title;
+        editDateInput.value = taskObject.date;
+        editTimeInput.value = taskObject.time;
+        editTextArea.value = taskObject.text;
+
+        editDialog.showModal();
+        });
+
+
     removeButton.addEventListener("click", (event) => {
-         const currentTaskText = newTask.querySelector('span').textContent;
-        const taskIndex = tasks.indexOf(currentTaskText);
+        event.stopPropagation()
+        const taskId = event.currentTarget.parentNode.dataset.id;
+        const taskIndex = tasks.findIndex(task => task.id == taskId);
 
-
+ 
         if (taskIndex > -1) {
             tasks.splice(taskIndex, 1);
             save();
             updateTaskCounter();
         }
-        newTask.remove();
-        event.stopPropagation();
+        event.currentTarget.parentNode.remove();
     })
 
 
@@ -95,54 +89,67 @@ function displayTask(taskText){
 
 }
 
+function searchTasks() {
+    const searchTerm = searchBar.value.toLowerCase();
+    const filteredTasks = tasks.filter(task => 
+        task.title.toLowerCase().includes(searchTerm) || 
+        task.text.toLowerCase().includes(searchTerm)
+    );
+
+    list.innerHTML = ''; 
+    for (const task of filteredTasks) {
+        displayTask(task); 
+    }
+}
 
 function filterTasks(filterType){
+    list.innerHTML = '';
+    let filteredTasks = [];
+    if (filterType === "all"){
+        filteredTasks = tasks;
+    } else if (filterType === "done") {
+        filteredTasks = tasks.filter(task => task.isCompleted);
+    } else if (filterType === "undone") {
+        filteredTasks = tasks.filter(task => !task.isCompleted);
+    }
 
-    const items = document.querySelectorAll(".todo-item")
-    for (const item of items){
-        let displayItems = false
-
-        if (filterType === "all"){
-            displayItems = true
-        } else if (filterType === "done" && item.classList.contains("done")){
-             displayItems = true
-        } else if (filterType ==="undone" && !(item.classList.contains("done"))){
-             displayItems = true
-        }
-
-        if (displayItems) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
+    for (const task of filteredTasks) {
+        displayTask(task);
     }
 
 }
-
     
 function updateTaskCounter() {
     const counterElement = document.getElementById("task-counter");
 
-    let completedTasks = 0;
-    let incompleteTasks = 0;
-    const items = document.querySelectorAll(".todo-item");
-
-        for (const item of items) {
-        if (item.classList.contains("done")) {
-            completedTasks++;
-        } else {
-            incompleteTasks++;
-        }
-    }
-    counterElement.textContent = `You have ${tasks.length} tasks: ${incompleteTasks} incomplete and ${completedTasks} completed.`;
+    const completedTasks = tasks.filter(task => task.isCompleted).length;
+    let incompleteTasks = tasks.filter(task => !task.isCompleted).length;
+    
+    counterElement.textContent = `You have ${tasks.length} tasks: ${incompleteTasks} Incomplete and ${completedTasks} completed.`;
 
 }
 
 
 const loadItem = () => {
+    list.innerHTML = ''
     const savedTasks = localStorage.getItem("todo")
     if (savedTasks !== null){
         tasks = JSON.parse(savedTasks);
+
+        tasks = tasks.map(task => {
+            if (typeof task === "string") {
+                return {
+                    id: Date.now().toString() + Math.random(), 
+                    title: "Imported Task",
+                    date: "Unknown",
+                    time: "Unknown",
+                    text: task,
+                    isCompleted: false
+                };
+            }
+            return task; 
+        });
+
        }
 
        for (const ele of tasks) {
@@ -159,49 +166,122 @@ function save(){
 }
 
 
+function showMessage(text, type = "info") {
+
+  messageWarn.textContent = text;
+
+  if (type === "error") {
+    messageWarn.style.color = "red";
+  } else if (type === "success") {
+    messageWarn.style.color = "green";
+  } else {
+    messageWarn.style.color = "black";
+  }
+  setTimeout(() => {
+    messageWarn.textContent = "";
+  }, 3000);
+}
+
+
 addButton.addEventListener("click", () => {
+  // open dialog in "add" mode
+  editingTaskId = null;
 
-     const userInput = textInput.value.trim();
-     const message = document.getElementById("message");
-    // learn how to check for empty strings first 
+  const today = new Date();
+  editTitleInput.value = "";
+  editDateInput.value = today.toISOString().slice(0,10);
+  editTimeInput.value = today.toTimeString().slice(0,5);
+  editTextArea.value = "";
 
-    const today = new Date();
-    const formattedDateTime = today.toLocaleString();
-    
-    if (userInput === "") {
-        message.textContent = "please input text";
-        message.classList.add("warning");
-        setTimeout(() =>{
-            message.textContent ="";
-        }, 2000)
-        return;
-    } 
-
-    //done. rest of the code
-    const combinedString = `Date: ${formattedDateTime} My task: ${userInput}` 
-    tasks.push(combinedString);
-    displayTask(combinedString);
-    save();
-    updateTaskCounter()
-    textInput.value = "";
-    
-
+  editDialog.showModal();
 });
+
 
     overviewButton.addEventListener("click", () => { 
         filterTasks("all"); 
-    })
+    });
 
     uncompleteButton.addEventListener("click", () => { 
         filterTasks("undone"); 
-    })
+    });
 
     completeButton.addEventListener("click", () => { 
         filterTasks("done"); 
-    })
+    });
+
+    clearBtn.addEventListener("click", () => {
+    if (tasks.length === 0) {
+       showMessage("No tasks to clear.", "error");
+       return;
+    }
+
+    tasks = [];
+    save();
+    list.innerHTML = "";
+    updateTaskCounter();
+    showMessage("All tasks cleared!", "success");
+  });
+
+  cancelEditBtn.addEventListener("click", () => {
+    editingTaskId = null;
+    editDialog.close();
+  });
 
 
 
+
+saveEditBtn.addEventListener("click", () => {
+  // read values from dialog
+  const title = editTitleInput.value.trim() || "Untitled Task";
+  const text = editTextArea.value.trim();
+  const dateValue = editDateInput.value;   
+  const timeValue = editTimeInput.value;   
+
+  // format date/time consistently for display
+  let formattedDate, formattedTime;
+  if (dateValue) {
+    const iso = dateValue + "T" + (timeValue || "00:00");
+    const date = new Date(iso);
+    formattedDate = date.toLocaleDateString("en");
+    formattedTime = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } else {
+    const now = new Date();
+    formattedDate = now.toLocaleDateString("en");
+    formattedTime = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  if (editingTaskId === null) {
+    // Add new task
+    const newTaskObject = {
+      id: Date.now().toString() + "-" + Math.random().toString(36).slice(2,6),
+      title,
+      date: formattedDate,
+      time: formattedTime,
+      text,
+      isCompleted: false
+    };
+    tasks.push(newTaskObject);
+  } else {
+    // Edit existing task
+    const taskObject = tasks.find(task => task.id == editingTaskId);
+    if (!taskObject) {
+        showMessage("Task not found.", "error");
+        return;
+    }
+
+    taskObject.title = title;
+    taskObject.date = formattedDate;
+    taskObject.time = formattedTime;
+    taskObject.text = text;
+  }
+
+  save();
+  loadItem();
+  editingTaskId = null;
+  editDialog.close();
+});
+
+searchBar.addEventListener('input', searchTasks);
 
 loadItem();
 
