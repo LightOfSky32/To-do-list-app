@@ -10,19 +10,37 @@
         <div id="mainContainer">
             <h1>Todo list</h1>
             <p id="task-counter"></p>
-            <div id="inputArea">
-                <input type="text" id="search" placeholder="Search tasks">
+            <div >
+                <div id="inputArea">
+                    <input type="text" id="search" placeholder="Search tasks">
+                </div>
                 <p id="message"></p>
-                <button id="addbtn">Add</button>
             </div>
-            <button id="overview-btn">Overview</button>
-            <button id="completed-btn">Completed</button>
-            <button id="undone-btn">Uncompleted</button>
-            <button id="clear-btn">Clear All</button>
-               <ul id="taskList">
+            <nav>
+                <button id="toggle-filter-btn">Filters</button>
+                <div id="filter-container" style="display:none;">
+                    <button id="overview-btn">Overview</button>
+                    <button id="completed-btn">Completed</button>
+                    <button id="undone-btn">Uncompleted</button>
+                    <button id="clear-btn"> Delete all</button>
+                    <button id="sort-date-btn">Sort by Date</button>
+                    <button id="show-filter-btn"> Filter By Date</button>
+                </div>
+                <button id="clear-completed-btn">Clear Completed</button>
+                <button id="addbtn">Add New Task</button>
+            </nav>
+            <div id="date-input-filter">
+                <label for="start-date">From:</label>
+                <input type="date" id="start-date">
+                <label for="end-date">To:</label>
+                <input type="date" id="end-date">
+                <button id="filter-date-btn">Filter by Date</button>
+            </div>
+             <div id="listWrap">
                 
-               </ul>
-               
+                <p id="empty-state" class="muted">No tasks yet — add one!</p>
+                <ul id="taskList"></ul>
+            </div>
         </div>
         
         <dialog id="edit-dialog">
@@ -30,7 +48,7 @@
              <div>
                 <input type="text" id="edit-title-input" placeholder="Task Title">
             </div>
-             <div>
+             <div id="dialogue-date-time">
                 <label for="edit-date">Date:</label>
                 <input type="date" id="edit-date-input">
                 <label for="edit-time">Time:</label>
@@ -41,8 +59,8 @@
            </div>
            <button id="save-edit-btn">Save</button>
            <button id="cancel-edit-btn">Cancel</button>
-
         </dialog>
+
         <script src="main.js"></script>
     </body>
 </html>

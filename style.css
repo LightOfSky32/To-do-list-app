@@ -5,6 +5,7 @@ body{
     justify-content: center;
     padding: 35px;
     align-items: center;
+    padding-top: 50px;
 }
 
 #mainContainer{
@@ -22,19 +23,24 @@ h1{
     text-align: center;
 }
 
+#task-counter{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: rgb(250, 168, 135);
+}
+
 #inputArea{
     display: flex;
-    display: inline;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    
-
+    gap: 20px;
 }
 
 #search{
     background-color: blanchedalmond;
-    width: 70%;
+    width: 85%;
     height: 25px;
     border-radius: 12px;
     border-color: rgb(255, 255, 255);
@@ -42,14 +48,48 @@ h1{
     border-width: 3px;
 }
 
+#message{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
 button{
-    padding: 5px 10px ;
+    padding: 8px 15px ;
     background-color: coral;
     border-radius: 12px;
     border: 3px solid white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.done{
+button:hover {
+  background-color: rgb(255, 88, 27);
+}
+
+.warning {
+    color: red;
+}
+
+#taskList {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.todo-item.done{
     border-style: dotted;
     font-style: italic;
     text-decoration: line-through;
@@ -57,10 +97,105 @@ button{
     border-color: cornsilk;
 }
 
-.warning {
-    color: red;
+
+.todo-item button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.todo-item{
-    padding: 10px;
+#date-input-filter {
+    display: none;
+    margin-top: 10px;
+}
+
+#edit-dialog {
+  padding: 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: cornsilk;
+}
+
+#edit-dialog::backdrop {
+  background-color: rgba(27, 26, 27, 0.6);
+}
+
+#edit-dialog h2 {
+  font-size: 35px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: coral;
+}
+
+#edit-dialog label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: cadetblue;
+}
+
+#dialogue-date-time{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+#edit-dialog input, #edit-dialog textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+#edit-dialog textarea {
+  height: 200px;
+  resize: vertical;
+}
+
+#edit-textarea {
+  width: 100%; 
+  height: 120px; 
+  padding: 10px;
+  box-sizing: border-box; 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical; 
+  font-family: inherit;
+  font-size: 16px;
+}
+
+#edit-dialog #save-edit-btn, #edit-dialog #cancel-edit-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#edit-dialog #save-edit-btn {
+  background-color: rgb(37, 125, 240);
+  color: white;
+  margin-right: 10px;
+}
+
+#edit-dialog #save-edit-btn:hover {
+  background-color: #02468f;
+}
+
+#edit-dialog #cancel-edit-btn {
+  background-color: rgb(218, 216, 216);
+  color: rgb(61, 56, 56);
+}
+
+#edit-dialog #cancel-edit-btn:hover {
+  background-color: #ccc;
 }

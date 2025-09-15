@@ -12,6 +12,17 @@ const cancelEditBtn = document.getElementById("cancel-edit-btn");
 const searchBar = document.getElementById("search");
 const clearBtn = document.getElementById("clear-btn");
 const messageWarn = document.getElementById("message");
+const clearCompletedBtn = document.getElementById("clear-completed-btn");
+const sortByDateBtn = document.getElementById("sort-date-btn");
+const startDateInput = document.getElementById("start-date");
+const endDateInput = document.getElementById("end-date");
+const filterDateBtn = document.getElementById("filter-date-btn");
+const showFilterBtn = document.getElementById("show-filter-btn");
+const dateFilterContainer = document.getElementById("date-input-filter");
+const emptyState = document.getElementById('empty-state');
+const visibleItems = document.querySelectorAll('#taskList .todo-item');
+const toggleFilterBtn = document.getElementById("toggle-filter-btn");
+const filterButtonsContainer = document.getElementById("filter-container");
 
 const list = document.getElementById("taskList");
 let tasks = [];
@@ -46,22 +57,27 @@ function displayTask(taskObject){
         if (event.target !== removeButton && event.target !== editButton) {
             newTask.classList.toggle("done");
             taskObject.isCompleted = !taskObject.isCompleted
+            save();
             updateTaskCounter();
-            save()
+            
         }
     });
 
     editButton.addEventListener("click", (event) => {
         event.stopPropagation();
-
+        
         const taskId = event.currentTarget.parentNode.dataset.id;
         const taskObject = tasks.find(task => task.id == taskId);
 
+        if (!taskObject) {
+          showMessage("Task not found", "error");
+          return;
+       }
+
         editingTaskId = taskId;
-        
+        setDialogMode('edit');
         editTitleInput.value = taskObject.title;
-        editDateInput.value = taskObject.date;
-        editTimeInput.value = taskObject.time;
+        setInputsFromTask(taskObject);
         editTextArea.value = taskObject.text;
 
         editDialog.showModal();
@@ -90,16 +106,15 @@ function displayTask(taskObject){
 }
 
 function searchTasks() {
-    const searchTerm = searchBar.value.toLowerCase();
-    const filteredTasks = tasks.filter(task => 
-        task.title.toLowerCase().includes(searchTerm) || 
-        task.text.toLowerCase().includes(searchTerm)
-    );
+  if (!searchBar) return;
+  const searchTerm = (searchBar.value || "").toLowerCase();
+  const filteredTasks = tasks.filter(task =>
+    String(task.title || "").toLowerCase().includes(searchTerm) ||
+    String(task.text || "").toLowerCase().includes(searchTerm)
+  );
 
-    list.innerHTML = ''; 
-    for (const task of filteredTasks) {
-        displayTask(task); 
-    }
+  list.innerHTML = '';
+  for (const task of filteredTasks) displayTask(task);
 }
 
 function filterTasks(filterType){
@@ -116,8 +131,101 @@ function filterTasks(filterType){
     for (const task of filteredTasks) {
         displayTask(task);
     }
-
 }
+
+function setInputsFromTask(task) {
+  if (!task) {
+    editDateInput.value = "";
+    editTimeInput.value = "";
+    return;
+  }
+
+  if (task.iso) {
+    editDateInput.value = task.iso.slice(0,10);
+    editTimeInput.value = task.iso.slice(11,16);
+    return;
+  }
+
+  let date = null;
+  if (task.date && task.time) {
+    date = new Date(`${task.date} ${task.time}`);
+  } else if (task.date) {
+    date = new Date(task.date);
+  }
+
+  if (date && !isNaN(date.getTime())) {
+    editDateInput.value = date.toISOString().slice(0,10);
+    editTimeInput.value = date.toTimeString().slice(0,5);
+  } else {
+    editDateInput.value = "";
+    editTimeInput.value = "";
+  }
+}
+
+
+
+function setDialogMode(mode) {
+  let titleEl = editDialog.querySelector('h2');
+
+  if (mode === 'add') {
+    titleEl.textContent = 'Add Task';
+    saveEditBtn.textContent = 'Add Task';
+  } else { 
+    titleEl.textContent = 'Edit Task';
+    saveEditBtn.textContent = 'Save Changes';
+  }
+}
+
+
+function filterByDateRange() {
+  if (!startDateInput.value || !endDateInput.value) {
+        showMessage("Please select both a start and end date.", "error");
+        return;
+    }
+    const startDate = new Date(startDateInput.value+ "T00:00:00");
+    const endDate = new Date(endDateInput.value + "T23:59:59");
+
+    const filteredTasks = tasks.filter(task => {
+       const taskDate = task.iso ? new Date(task.iso) : (task.date ? new Date(`${task.date} ${task.time || ''}`) : null);
+       if (!taskDate || isNaN(taskDate.getTime())){
+        return false;
+       } 
+
+
+        return taskDate >= startDate && taskDate <= endDate;
+    });
+
+    list.innerHTML = '';
+    for (const task of filteredTasks) {
+        displayTask(task);
+    }
+
+    if (filteredTasks.length === 0) {
+        showMessage("No tasks found in this date range.", "info");
+    } else {
+    showMessage(`Showing ${filteredTasks.length} tasks in this date range.`, "info");
+  }
+}
+
+
+function clearCompletedTasks() {
+    tasks = tasks.filter(task => !task.isCompleted);
+    save();
+    loadItem();
+}
+
+function dateSort() {
+  tasks.sort((a, b) => {
+    const dateA = a && a.iso ? new Date(a.iso) : (a && a.date ? new Date(`${a.date} ${a.time || ''}`) : new Date(0));
+    const dateB = b && b.iso ? new Date(b.iso) : (b && b.date ? new Date(`${b.date} ${b.time || ''}`) : new Date(0));
+    const timeA = isNaN(dateA.getTime()) ? 0 : dateA.getTime();
+    const timeB = isNaN(dateB.getTime()) ? 0 : dateB.getTime();
+    return timeA - timeB;
+  });
+  save();
+  loadItem();
+}
+
     
 function updateTaskCounter() {
     const counterElement = document.getElementById("task-counter");
@@ -126,44 +234,37 @@ function updateTaskCounter() {
     let incompleteTasks = tasks.filter(task => !task.isCompleted).length;
     
     counterElement.textContent = `You have ${tasks.length} tasks: ${incompleteTasks} Incomplete and ${completedTasks} completed.`;
-
+    emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
 }
 
 
-const loadItem = () => {
-    list.innerHTML = ''
-    const savedTasks = localStorage.getItem("todo")
-    if (savedTasks !== null){
-        tasks = JSON.parse(savedTasks);
+function loadItem() {
+  list.innerHTML = '';
 
-        tasks = tasks.map(task => {
-            if (typeof task === "string") {
-                return {
-                    id: Date.now().toString() + Math.random(), 
-                    title: "Imported Task",
-                    date: "Unknown",
-                    time: "Unknown",
-                    text: task,
-                    isCompleted: false
-                };
-            }
-            return task; 
-        });
+  const savedTasks = localStorage.getItem("todo");
+  if (!savedTasks) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(savedTasks);
+    if (!Array.isArray(tasks)) tasks = [];
+  }
 
-       }
+  for (const t of tasks) displayTask(t);
+  updateTaskCounter();
 
-       for (const ele of tasks) {
-        displayTask(ele);
-       }
-       updateTaskCounter()
-    }
-
-
-//adding local storage (learning)
-function save(){
-    localStorage.setItem("todo", JSON.stringify(tasks))
-    
+  if (tasks.length === 0) {
+    showMessage("You have no tasks to display.", "info");
+  } else {
+    showMessage("Tasks loaded successfully!", "success");
+  }
 }
+
+
+function save() {
+  localStorage.setItem("todo", JSON.stringify(tasks));
+  
+}
+
 
 
 function showMessage(text, type = "info") {
@@ -184,7 +285,6 @@ function showMessage(text, type = "info") {
 
 
 addButton.addEventListener("click", () => {
-  // open dialog in "add" mode
   editingTaskId = null;
 
   const today = new Date();
@@ -192,7 +292,7 @@ addButton.addEventListener("click", () => {
   editDateInput.value = today.toISOString().slice(0,10);
   editTimeInput.value = today.toTimeString().slice(0,5);
   editTextArea.value = "";
-
+  setDialogMode('add');
   editDialog.showModal();
 });
 
@@ -227,52 +327,63 @@ addButton.addEventListener("click", () => {
     editDialog.close();
   });
 
+filterDateBtn.addEventListener('click', filterByDateRange);
 
+toggleFilterBtn.addEventListener('click', () => {
+    if (filterButtonsContainer.style.display === 'none') {
+        filterButtonsContainer.style.display = 'block';
+        toggleFilterBtn.textContent = 'Hide Filters';
+    } else {
+        filterButtonsContainer.style.display = 'none';
+        toggleFilterBtn.textContent = 'Filter';
+    }
+});
 
 
 saveEditBtn.addEventListener("click", () => {
-  // read values from dialog
+  
   const title = editTitleInput.value.trim() || "Untitled Task";
   const text = editTextArea.value.trim();
-  const dateValue = editDateInput.value;   
-  const timeValue = editTimeInput.value;   
+  const dateValue = editDateInput.value;
+  const timeValue = editTimeInput.value;
 
-  // format date/time consistently for display
-  let formattedDate, formattedTime;
+  let dateForIso;
   if (dateValue) {
-    const iso = dateValue + "T" + (timeValue || "00:00");
-    const date = new Date(iso);
-    formattedDate = date.toLocaleDateString("en");
-    formattedTime = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const isoInput = dateValue + "T" + (timeValue || "00:00");
+    dateForIso = new Date(isoInput);
   } else {
-    const now = new Date();
-    formattedDate = now.toLocaleDateString("en");
-    formattedTime = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    dateForIso = new Date();
   }
+  const isoString = isNaN(dateForIso.getTime()) ? null : dateForIso.toISOString();
+  const formattedDate = dateForIso.toLocaleDateString("en");
+  const formattedTime = dateForIso.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   if (editingTaskId === null) {
-    // Add new task
     const newTaskObject = {
       id: Date.now().toString() + "-" + Math.random().toString(36).slice(2,6),
       title,
       date: formattedDate,
       time: formattedTime,
+      iso: isoString,
       text,
       isCompleted: false
     };
     tasks.push(newTaskObject);
+    showMessage("Task added successfully!", "success");
   } else {
-    // Edit existing task
+
     const taskObject = tasks.find(task => task.id == editingTaskId);
     if (!taskObject) {
-        showMessage("Task not found.", "error");
-        return;
+      showMessage("Task not found.", "error");
+      return;
     }
 
     taskObject.title = title;
     taskObject.date = formattedDate;
     taskObject.time = formattedTime;
+    taskObject.iso = isoString;
     taskObject.text = text;
+    showMessage("Task updated successfully!", "success");
   }
 
   save();
@@ -281,7 +392,19 @@ saveEditBtn.addEventListener("click", () => {
   editDialog.close();
 });
 
-searchBar.addEventListener('input', searchTasks);
 
+showFilterBtn.addEventListener('click', () => {
+    if (dateFilterContainer.style.display === 'none' || dateFilterContainer.style.display === '') {
+        dateFilterContainer.style.display = 'block';
+        showFilterBtn.textContent = 'Hide Date Filter';
+    } else {
+        dateFilterContainer.style.display = 'none'; 
+        showFilterBtn.textContent = 'Show Date Filter';
+    }
+});
+
+searchBar.addEventListener('input', searchTasks);
+clearCompletedBtn.addEventListener("click", clearCompletedTasks);
+sortByDateBtn.addEventListener("click", dateSort);
 loadItem();
 
