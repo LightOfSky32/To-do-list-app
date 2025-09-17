@@ -48,11 +48,39 @@ h1{
     border-width: 3px;
 }
 
+#search:focus {
+  border-color: rgb(78, 192, 192);
+  background-color: azure;
+  border-style: solid;
+  border-width: 2px;
+  outline:none;
+}
+
 #message{
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+}
+
+#button-rows{
+  display: inline; 
+  gap: 10px; 
+  margin-bottom: 20px;
+}
+
+#filter-container{
+  display: none;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f0f4f8; 
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#filter-container button{
+  display: block;
 }
 
 button{
@@ -97,19 +125,41 @@ button:hover {
     border-color: cornsilk;
 }
 
-
+.hide {
+  display: none;
+}
 .todo-item button {
   margin-left: 5px;
-  padding: 5px 10px;
+  padding: 8px 15px;
   border: none;
-  border-radius: 4px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+#empty-state{
+  color: rgb(133, 82, 82);
+  text-align: center;
 }
 
 #date-input-filter {
-    display: none;
-    margin-top: 10px;
+  display: none;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f0f4f8; 
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+#date-input-filter input {
+  display: block;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 
 #edit-dialog {
   padding: 20px;
@@ -193,9 +243,20 @@ button:hover {
 
 #edit-dialog #cancel-edit-btn {
   background-color: rgb(218, 216, 216);
-  color: rgb(61, 56, 56);
+  color: rgb(0, 0, 0);
 }
 
 #edit-dialog #cancel-edit-btn:hover {
-  background-color: #ccc;
+  background-color: rgb(85, 85, 85);
+}
+
+#edit-dialog input:focus, #edit-dialog textarea:focus {
+  border-color: rgb(78, 192, 192);
+  border-style: solid;
+  border-width: 2px;
+  outline:none;
+}
+
+#edit-textarea:hover {
+  border-color: #007bff;
 }

@@ -17,7 +17,11 @@
                 <p id="message"></p>
             </div>
             <nav>
-                <button id="toggle-filter-btn">Filters</button>
+                <div id="button-rows">
+                    <button id="addbtn">Add New Task</button>
+                    <button id="clear-completed-btn">Clear Completed</button>
+                    <button id="toggle-filter-btn">Show Filters</button>
+                </div>
                 <div id="filter-container" style="display:none;">
                     <button id="overview-btn">Overview</button>
                     <button id="completed-btn">Completed</button>
@@ -26,8 +30,7 @@
                     <button id="sort-date-btn">Sort by Date</button>
                     <button id="show-filter-btn"> Filter By Date</button>
                 </div>
-                <button id="clear-completed-btn">Clear Completed</button>
-                <button id="addbtn">Add New Task</button>
+                
             </nav>
             <div id="date-input-filter">
                 <label for="start-date">From:</label>
@@ -37,8 +40,7 @@
                 <button id="filter-date-btn">Filter by Date</button>
             </div>
              <div id="listWrap">
-                
-                <p id="empty-state" class="muted">No tasks yet — add one!</p>
+                <p id="empty-state" class="muted">No tasks yet, add one!</p>
                 <ul id="taskList"></ul>
             </div>
         </div>

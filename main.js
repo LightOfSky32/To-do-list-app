@@ -52,11 +52,23 @@ function displayTask(taskObject){
     removeButton.textContent = "delete task";
     removeButton.classList.add("delete-btn");
 
+    if (taskObject.isCompleted) {
+        editButton.classList.add("hide");
+        removeButton.classList.add("hide");
+    }
 
     newTask.addEventListener("click", (event) => {
         if (event.target !== removeButton && event.target !== editButton) {
             newTask.classList.toggle("done");
             taskObject.isCompleted = !taskObject.isCompleted
+
+            const buttons = newTask.querySelectorAll("button");
+            if (newTask.classList.contains("done")) {
+                buttons.forEach(button => button.classList.add("hide"));
+            } else {
+                buttons.forEach(button => button.classList.remove("hide"));
+            }
+
             save();
             updateTaskCounter();
             
@@ -97,7 +109,7 @@ function displayTask(taskObject){
         }
         event.currentTarget.parentNode.remove();
     })
-
+    
 
     newTask.appendChild(removeButton);
     newTask.appendChild(editButton);
@@ -335,7 +347,7 @@ toggleFilterBtn.addEventListener('click', () => {
         toggleFilterBtn.textContent = 'Hide Filters';
     } else {
         filterButtonsContainer.style.display = 'none';
-        toggleFilterBtn.textContent = 'Filter';
+        toggleFilterBtn.textContent = 'Show Filter';
     }
 });
 
