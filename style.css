@@ -93,7 +93,19 @@ button{
 }
 
 button:hover {
-  background-color: rgb(255, 88, 27);
+  background-color: rgb(27, 255, 141);
+}
+
+#clear-btn {
+  background-color: rgb(160, 0, 252);
+  border-radius: solid 2px grey;
+  color: whitesmoke;
+  font-weight: bold;
+}
+
+#clear-btn:hover {
+  background-color: rgb(255, 0, 0);
+  width: 40%;
 }
 
 .warning {
